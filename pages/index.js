@@ -14,6 +14,11 @@ const btnValues = [
   [0, ".", "="],
 ];
 
+let firstNumber;
+let sign;
+let secondNumber;
+export let result;
+
 const toLocaleString = (num) =>
   String(num).replace(/(?<!\..*)(\d)(?=(?:\d{3})+(?:\.|$))/g, "$1 ");
 
@@ -29,7 +34,7 @@ export default function Home() {
   const numClickHandler = (e) => {
     e.preventDefault();
     const value = e.target.innerHTML.replace("<!-- -->", "");
-    console.log(value)
+
     if (removeSpaces(calc.num).length < 16) {
       setCalc({
         ...calc,
@@ -37,8 +42,8 @@ export default function Home() {
           calc.num === 0 && value === "0"
             ? "0"
             : removeSpaces(calc.num) % 1 === 0
-            ? toLocaleString(Number(removeSpaces(calc.num + value)))
-            : toLocaleString(calc.num + value),
+              ? toLocaleString(Number(removeSpaces(calc.num + value)))
+              : toLocaleString(calc.num + value),
         res: !calc.sign ? 0 : calc.res,
       });
     }
@@ -68,30 +73,54 @@ export default function Home() {
 
   const equalsClickHandler = () => {
     if (calc.sign && calc.num) {
+
       const math = (a, b, sign) =>
         sign === "+"
           ? a + b
           : sign === "-"
-          ? a - b
-          : sign === "X"
-          ? a * b
-          : a / b;
+            ? a - b
+            : sign === "X"
+              ? a * b
+              : a / b;
+      firstNumber = calc.res
+      console.log(firstNumber)
+      sign = calc.sign
+      console.log(sign);
+      secondNumber = calc.num
+      console.log(secondNumber)
 
-      setCalc({
-        ...calc,
-        res:
-          calc.num === "0" && calc.sign === "/"
-            ? "Can't divide with 0"
-            : toLocaleString(
+      setCalc(
+        {
+          ...calc,
+          res:
+            calc.num === "0" && calc.sign === "/"
+              ? "Can't divide with 0"
+              : toLocaleString(
                 math(
                   Number(removeSpaces(calc.res)),
                   Number(removeSpaces(calc.num)),
                   calc.sign
                 )
               ),
-        sign: "",
-        num: 0,
-      });
+          sign: "",
+          num: 0,
+        }
+      );
+
+      result = toLocaleString(
+        math(
+          Number(removeSpaces(calc.res)),
+          Number(removeSpaces(calc.num)),
+          calc.sign
+        )
+      );
+      console.log(result)
+
+      const ul = document.getElementById('history-list')
+
+      let li = document.createElement('li')
+      li.innerHTML = firstNumber + " " + sign + " " + secondNumber + " = " + result
+      ul.append(li)
     }
   };
 
@@ -124,6 +153,15 @@ export default function Home() {
       res: 0,
     });
   };
+
+  function toggleHistory() {
+    const history = document.getElementById('history')
+    if (history.classList.contains('show')) {
+      history.classList.remove('show')
+    } else {
+      history.classList.add('show')
+    }
+  }
 
   return (
     <div>
@@ -162,6 +200,10 @@ export default function Home() {
           }
         </ButtonBox>
       </Wrapper>
+      <button id='history-btn' onClick={toggleHistory}>Show history</button>
+      <div id="history" className='show'>
+        <ul id='history-list'></ul>
+      </div>
     </div>
   )
 }
